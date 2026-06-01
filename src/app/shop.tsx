@@ -1,11 +1,13 @@
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SHOP_BOOSTERS, useGameApp } from '@/features/game-app-context';
 import { screenStyles, tokens } from '@/features/theme';
 
 export default function ShopScreen() {
+  const { width } = useWindowDimensions();
+  const compact = width < 500;
   const { buyBooster, isAdminBuild, state } = useGameApp();
 
   return (
@@ -16,7 +18,7 @@ export default function ShopScreen() {
             <Text style={styles.backLabel}>Back</Text>
           </Pressable>
           <View style={styles.headerText}>
-            <Text style={styles.title}>Shop</Text>
+            <Text style={[styles.title, compact && styles.titleCompact]}>Shop</Text>
             <Text style={styles.subtitle}>
               Buy real gameplay boosts with coins, or keep them included in the admin build.
             </Text>
@@ -43,12 +45,14 @@ export default function ShopScreen() {
                   </View>
                 </View>
 
-                <View style={styles.boosterFooter}>
+                <View style={[styles.boosterFooter, compact && styles.boosterFooterCompact]}>
                   <Text style={styles.stockLabel}>
                     Owned {state.boosters[booster.key]} ·{' '}
                     {isAdminBuild ? 'Included in admin build' : `${booster.cost} coins`}
                   </Text>
-                  <Pressable onPress={() => buyBooster(booster.key)} style={styles.buyButton}>
+                  <Pressable
+                    onPress={() => buyBooster(booster.key)}
+                    style={[styles.buyButton, compact && styles.buyButtonCompact]}>
                     <Text style={styles.buyButtonText}>{isAdminBuild ? 'Add' : 'Buy'}</Text>
                   </Pressable>
                 </View>
@@ -103,6 +107,9 @@ const styles = StyleSheet.create({
     color: tokens.text,
     fontSize: 32,
     fontWeight: '800',
+  },
+  titleCompact: {
+    fontSize: 28,
   },
   subtitle: {
     color: tokens.subtleText,
@@ -182,6 +189,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
+  boosterFooterCompact: {
+    alignItems: 'stretch',
+    flexDirection: 'column',
+  },
   stockLabel: {
     color: tokens.subtleText,
     fontSize: 13,
@@ -195,6 +206,10 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 12,
+  },
+  buyButtonCompact: {
+    alignItems: 'center',
+    alignSelf: 'stretch',
   },
   buyButtonText: {
     color: '#745463',

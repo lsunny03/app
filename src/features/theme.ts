@@ -23,11 +23,11 @@ export const screenStyles = StyleSheet.create({
   },
   scrollContent: {
     width: '100%',
-    maxWidth: 860,
+    maxWidth: 460,
     alignSelf: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 32,
-    gap: 20,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 28,
+    gap: 16,
   },
 });

@@ -1,11 +1,13 @@
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useGameApp } from '@/features/game-app-context';
 import { screenStyles, tokens } from '@/features/theme';
 
 export default function SettingsScreen() {
+  const { width } = useWindowDimensions();
+  const compact = width < 500;
   const { appVariant, isAdminBuild, monetizationEnabled, resetProgress, state, sponsoredBonus } =
     useGameApp();
 
@@ -17,7 +19,7 @@ export default function SettingsScreen() {
         </Pressable>
 
         <View style={styles.hero}>
-          <Text style={styles.title}>Settings</Text>
+          <Text style={[styles.title, compact && styles.titleCompact]}>Settings</Text>
           <Text style={styles.subtitle}>
             This app now treats admin access as a build profile instead of a player-facing toggle.
           </Text>
@@ -65,8 +67,11 @@ export default function SettingsScreen() {
 }
 
 function DetailRow({ label, value }: { label: string; value: string }) {
+  const { width } = useWindowDimensions();
+  const compact = width < 500;
+
   return (
-    <View style={styles.detailRow}>
+    <View style={[styles.detailRow, compact && styles.detailRowCompact]}>
       <Text style={styles.detailLabel}>{label}</Text>
       <Text style={styles.detailValue}>{value}</Text>
     </View>
@@ -101,6 +106,9 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '800',
   },
+  titleCompact: {
+    fontSize: 28,
+  },
   subtitle: {
     color: tokens.subtleText,
     fontSize: 15,
@@ -134,6 +142,11 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#f0e4d7',
+  },
+  detailRowCompact: {
+    alignItems: 'flex-start',
+    flexDirection: 'column',
+    gap: 4,
   },
   detailLabel: {
     color: tokens.subtleText,

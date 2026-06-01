@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GAME_LIBRARY } from '@/features/game-library';
@@ -8,6 +8,8 @@ import { useGameApp } from '@/features/game-app-context';
 import { screenStyles, tokens } from '@/features/theme';
 
 export default function HomeScreen() {
+  const { width } = useWindowDimensions();
+  const compact = width < 500;
   const {
     appVariant,
     claimSponsoredBonus,
@@ -27,29 +29,31 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={screenStyles.safeArea}>
       <ScrollView contentContainerStyle={screenStyles.scrollContent}>
-        <View style={styles.hero}>
+        <View style={[styles.hero, compact && styles.heroCompact]}>
           <View style={styles.heroText}>
             <Text style={styles.eyebrow}>Offline arcade collection</Text>
-            <Text style={styles.title}>Pocket Arcade</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, compact && styles.titleCompact]}>Pocket Arcade</Text>
+            <Text style={[styles.subtitle, compact && styles.subtitleCompact]}>
               Four quick-play games, local progression, and an admin build that runs ad-free.
             </Text>
           </View>
 
           <View style={styles.walletRow}>
-            <StatPill label="Coins" value={state.coins.toString()} tone="gold" />
-            <StatPill label="Sessions" value={state.sessionsPlayed.toString()} tone="blue" />
+            <StatPill compact={compact} label="Coins" value={state.coins.toString()} tone="gold" />
+            <StatPill compact={compact} label="Sessions" value={state.sessionsPlayed.toString()} tone="blue" />
             <StatPill
+              compact={compact}
               label="Build"
-              value={isAdminBuild ? 'Admin' : 'Consumer'}
+              value={isAdminBuild ? 'Admin' : compact ? 'Player' : 'Consumer'}
               tone={isAdminBuild ? 'green' : 'purple'}
+              wide={compact}
             />
           </View>
         </View>
 
         {!isAdminBuild ? (
           <View style={styles.sponsorCard}>
-            <View style={styles.sectionHeader}>
+            <View style={[styles.sectionHeader, compact && styles.sectionHeaderCompact]}>
               <View style={styles.flexCopy}>
                 <Text style={styles.sectionTitle}>Rewarded coin bonus</Text>
                 <Text style={styles.sectionBody}>
@@ -62,6 +66,7 @@ export default function HomeScreen() {
                 onPress={handleClaimSponsoredBonus}
                 style={[
                   styles.primaryAction,
+                  compact && styles.primaryActionCompact,
                   (!sponsoredBonus.canClaim || claimingSponsoredBonus) && styles.primaryActionDisabled,
                 ]}>
                 <Text style={styles.primaryActionText}>
@@ -81,7 +86,7 @@ export default function HomeScreen() {
         )}
 
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
+          <View style={[styles.sectionHeader, compact && styles.sectionHeaderCompact]}>
             <View style={styles.flexCopy}>
               <Text style={styles.sectionTitle}>Game library</Text>
               <Text style={styles.sectionBody}>Pick up a run in under a minute, even offline.</Text>
@@ -118,7 +123,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
+          <View style={[styles.sectionHeader, compact && styles.sectionHeaderCompact]}>
             <View style={styles.flexCopy}>
               <Text style={styles.sectionTitle}>Studio controls</Text>
               <Text style={styles.sectionBody}>
@@ -161,16 +166,26 @@ export default function HomeScreen() {
 }
 
 function StatPill({
+  compact,
   label,
   value,
   tone,
+  wide = false,
 }: {
+  compact?: boolean;
   label: string;
   value: string;
   tone: 'gold' | 'blue' | 'green' | 'purple';
+  wide?: boolean;
 }) {
   return (
-    <View style={[styles.statPill, statToneStyles[tone]]}>
+    <View
+      style={[
+        styles.statPill,
+        statToneStyles[tone],
+        compact && styles.statPillCompact,
+        wide && styles.statPillWide,
+      ]}>
       <Text style={styles.statLabel}>{label}</Text>
       <Text style={styles.statValue}>{value}</Text>
     </View>
@@ -220,6 +235,10 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 20,
   },
+  heroCompact: {
+    padding: 20,
+    gap: 16,
+  },
   heroText: {
     gap: 10,
   },
@@ -235,10 +254,17 @@ const styles = StyleSheet.create({
     fontSize: 34,
     fontWeight: '800',
   },
+  titleCompact: {
+    fontSize: 29,
+  },
   subtitle: {
     color: tokens.subtleText,
     fontSize: 16,
     lineHeight: 22,
+  },
+  subtitleCompact: {
+    fontSize: 15,
+    lineHeight: 21,
   },
   walletRow: {
     flexDirection: 'row',
@@ -253,6 +279,14 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     minWidth: 110,
     gap: 2,
+  },
+  statPillCompact: {
+    flexGrow: 1,
+    flexBasis: '30%',
+    minWidth: 96,
+  },
+  statPillWide: {
+    flexBasis: '100%',
   },
   statLabel: {
     color: tokens.subtleText,
@@ -297,6 +331,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
+  sectionHeaderCompact: {
+    alignItems: 'stretch',
+    flexDirection: 'column',
+  },
   sectionTitle: {
     color: tokens.text,
     fontSize: 20,
@@ -316,6 +354,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 14,
+  },
+  primaryActionCompact: {
+    alignSelf: 'stretch',
+    alignItems: 'center',
   },
   primaryActionDisabled: {
     opacity: 0.45,

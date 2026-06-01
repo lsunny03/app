@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CakeSortGame } from '@/features/games/cake-sort-game';
@@ -11,6 +11,8 @@ import { useGameApp } from '@/features/game-app-context';
 import { screenStyles, tokens } from '@/features/theme';
 
 export default function GameScreen() {
+  const { width } = useWindowDimensions();
+  const compact = width < 500;
   const { slug } = useLocalSearchParams<{ slug?: string }>();
   const { isAdminBuild, recordSession, state } = useGameApp();
 
@@ -38,13 +40,13 @@ export default function GameScreen() {
           </Pressable>
 
           <View style={styles.headerCopy}>
-            <Text style={styles.eyebrow}>
+            <Text style={[styles.eyebrow, compact && styles.eyebrowCompact]}>
               {game.emoji} {game.title}
             </Text>
             <Text style={styles.subtitle}>{game.description}</Text>
           </View>
 
-          <View style={[styles.bestCard, { borderColor: game.accent }]}>
+          <View style={[styles.bestCard, compact && styles.bestCardCompact, { borderColor: game.accent }]}>
             <Text style={styles.bestLabel}>Best score</Text>
             <Text style={styles.bestValue}>{state.bestScores[slug]}</Text>
           </View>
@@ -115,6 +117,9 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: '800',
   },
+  eyebrowCompact: {
+    fontSize: 26,
+  },
   title: {
     color: tokens.text,
     fontSize: 30,
@@ -132,6 +137,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignSelf: 'flex-start',
     minWidth: 140,
+  },
+  bestCardCompact: {
+    alignSelf: 'stretch',
+    minWidth: 0,
   },
   bestLabel: {
     color: tokens.subtleText,
