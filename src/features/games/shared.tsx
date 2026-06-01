@@ -37,10 +37,11 @@ export function ActionButton({
     <Pressable
       disabled={disabled}
       onPress={onPress}
-      style={[
+      style={({ pressed }) => [
         styles.actionButton,
         tone === 'primary' ? styles.primaryButton : styles.secondaryButton,
         disabled && styles.disabledButton,
+        pressed && !disabled && styles.pressedButton,
       ]}>
       <Text
         style={[
@@ -117,8 +118,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: tokens.border,
     borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    justifyContent: 'center',
+    minHeight: 54,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     minWidth: 88,
     alignItems: 'center',
   },
@@ -130,6 +133,10 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     opacity: 0.4,
+  },
+  pressedButton: {
+    opacity: 0.92,
+    transform: [{ scale: 0.985 }],
   },
   actionLabel: {
     fontSize: 14,

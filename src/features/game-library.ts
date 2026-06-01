@@ -34,6 +34,7 @@ export const GAME_LIBRARY = [
 ] as const;
 
 export type GameSlug = (typeof GAME_LIBRARY)[number]['slug'];
+export type GameDefinition = (typeof GAME_LIBRARY)[number];
 
 export const GAME_LIBRARY_MAP = Object.fromEntries(
   GAME_LIBRARY.map((game) => [game.slug, game])
