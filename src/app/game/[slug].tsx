@@ -95,7 +95,9 @@ const styles = StyleSheet.create({
   },
   backButton: {
     alignSelf: 'flex-start',
-    backgroundColor: tokens.surface,
+    backgroundColor: '#fbf4eb',
+    borderWidth: 1,
+    borderColor: tokens.border,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 14,
@@ -143,7 +145,9 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   banner: {
-    backgroundColor: '#1f2231',
+    backgroundColor: '#fff3ea',
+    borderWidth: 1,
+    borderColor: '#efd8c3',
     borderRadius: 18,
     padding: 16,
     gap: 6,

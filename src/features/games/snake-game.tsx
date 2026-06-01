@@ -227,13 +227,13 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   emptyCell: {
-    backgroundColor: '#0f1420',
+    backgroundColor: '#efe2d2',
   },
   snakeCell: {
-    backgroundColor: '#7ad66f',
+    backgroundColor: '#a5d09a',
   },
   foodCell: {
-    backgroundColor: '#ff6b7a',
+    backgroundColor: '#eda7b5',
   },
   controls: {
     alignItems: 'center',

@@ -205,15 +205,17 @@ function InfoCard({
 }
 
 const statToneStyles = StyleSheet.create({
-  gold: { backgroundColor: '#372f17' },
-  blue: { backgroundColor: '#18283f' },
-  green: { backgroundColor: '#163223' },
-  purple: { backgroundColor: '#2a1b3a' },
+  gold: { backgroundColor: '#f7e4b7' },
+  blue: { backgroundColor: '#d8e7ea' },
+  green: { backgroundColor: '#dcecd4' },
+  purple: { backgroundColor: '#eadcf1' },
 });
 
 const styles = StyleSheet.create({
   hero: {
-    backgroundColor: tokens.surfaceStrong,
+    backgroundColor: tokens.surface,
+    borderWidth: 1,
+    borderColor: tokens.border,
     borderRadius: 24,
     padding: 24,
     gap: 20,
@@ -222,7 +224,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   eyebrow: {
-    color: tokens.cyan,
+    color: '#a88377',
     fontSize: 13,
     fontWeight: '700',
     letterSpacing: 0,
@@ -244,6 +246,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   statPill: {
+    borderWidth: 1,
+    borderColor: '#ead9c6',
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderRadius: 14,
@@ -261,11 +265,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   sponsorCard: {
-    backgroundColor: '#1f2231',
+    backgroundColor: '#fff3ea',
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#504e76',
+    borderColor: '#efd8c3',
     gap: 12,
   },
   sponsorHint: {
@@ -274,11 +278,11 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   adminCard: {
-    backgroundColor: '#173127',
+    backgroundColor: '#eef5e7',
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#2e6a53',
+    borderColor: '#d1dfc4',
     gap: 8,
   },
   flexCopy: {
@@ -306,7 +310,9 @@ const styles = StyleSheet.create({
     maxWidth: 520,
   },
   primaryAction: {
-    backgroundColor: tokens.gold,
+    backgroundColor: tokens.pink,
+    borderWidth: 1,
+    borderColor: '#e1b1bf',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 14,
@@ -315,12 +321,14 @@ const styles = StyleSheet.create({
     opacity: 0.45,
   },
   primaryActionText: {
-    color: '#241b00',
+    color: '#745463',
     fontSize: 14,
     fontWeight: '800',
   },
   secondaryAction: {
-    backgroundColor: tokens.surface,
+    backgroundColor: '#fbf4eb',
+    borderWidth: 1,
+    borderColor: tokens.border,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 14,
@@ -365,6 +373,8 @@ const styles = StyleSheet.create({
   },
   metaBadge: {
     backgroundColor: tokens.surfaceStrong,
+    borderWidth: 1,
+    borderColor: tokens.border,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -383,7 +393,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   playLabel: {
-    color: tokens.cyan,
+    color: '#bd8797',
     fontSize: 14,
     fontWeight: '800',
   },
@@ -392,6 +402,8 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     backgroundColor: tokens.surface,
+    borderWidth: 1,
+    borderColor: tokens.border,
     borderRadius: 18,
     padding: 18,
     gap: 10,

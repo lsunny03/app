@@ -95,6 +95,8 @@ const styles = StyleSheet.create({
   surface: {
     backgroundColor: tokens.surface,
     borderRadius: 22,
+    borderWidth: 1,
+    borderColor: tokens.border,
     padding: 18,
     gap: 16,
   },
@@ -112,6 +114,8 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   actionButton: {
+    borderWidth: 1,
+    borderColor: tokens.border,
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -119,10 +123,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   primaryButton: {
-    backgroundColor: tokens.gold,
+    backgroundColor: tokens.pink,
   },
   secondaryButton: {
-    backgroundColor: tokens.surfaceStrong,
+    backgroundColor: '#fbf2e8',
   },
   disabledButton: {
     opacity: 0.4,
@@ -132,7 +136,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   primaryLabel: {
-    color: '#241c00',
+    color: '#6f5362',
   },
   secondaryLabel: {
     color: tokens.text,
@@ -144,6 +148,8 @@ const styles = StyleSheet.create({
   },
   statCard: {
     backgroundColor: tokens.surfaceStrong,
+    borderWidth: 1,
+    borderColor: tokens.border,
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,

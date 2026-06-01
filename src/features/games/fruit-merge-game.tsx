@@ -244,13 +244,13 @@ export function FruitMergeGame({ onComplete }: { onComplete: (score: number) => 
 }
 
 const fruitStyles: Record<number, { backgroundColor: string }> = StyleSheet.create({
-  1: { backgroundColor: '#66263f' },
-  2: { backgroundColor: '#8b3453' },
-  3: { backgroundColor: '#b44b43' },
-  4: { backgroundColor: '#db7c37' },
-  5: { backgroundColor: '#cbac37' },
-  6: { backgroundColor: '#6dac52' },
-  7: { backgroundColor: '#5385d1' },
+  1: { backgroundColor: '#f5cad8' },
+  2: { backgroundColor: '#ebb9cb' },
+  3: { backgroundColor: '#f2c5ae' },
+  4: { backgroundColor: '#f4d9a8' },
+  5: { backgroundColor: '#d7e3ac' },
+  6: { backgroundColor: '#b9dcbf' },
+  7: { backgroundColor: '#bfd3ef' },
 });
 
 const styles = StyleSheet.create({
@@ -268,10 +268,10 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   tileEmpty: {
-    backgroundColor: '#0f1420',
+    backgroundColor: '#efe2d2',
   },
   tileFinal: {
-    backgroundColor: '#4f63c8',
+    backgroundColor: '#d2c1e6',
   },
   tileLabel: {
     color: tokens.text,

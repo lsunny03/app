@@ -27,7 +27,7 @@ const CONFIGS: Record<'cake' | 'screw', VariantConfig> = {
     subtitle: 'Move layers one tap at a time until every slice stack matches cleanly.',
     capacity: 4,
     emptyColumns: 1,
-    colors: ['#f29f9f', '#f2cf8c', '#a6d8d4', '#c2b6ff'],
+    colors: ['#efbcc0', '#f0d6a2', '#c8e0d6', '#d7c7e9'],
     label: 'Layers',
   },
   screw: {
@@ -35,7 +35,7 @@ const CONFIGS: Record<'cake' | 'screw', VariantConfig> = {
     subtitle: 'Route screws into cleaner bins and keep the top color aligned.',
     capacity: 3,
     emptyColumns: 1,
-    colors: ['#7a91ff', '#87d2ff', '#c6c0d8', '#ffaf6e', '#7bd89f'],
+    colors: ['#bfcbef', '#c7dfec', '#ddd3ea', '#f5cba7', '#c7dfc0'],
     label: 'Screws',
   },
 };
@@ -276,12 +276,12 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   stackCard: {
-    backgroundColor: '#0f1420',
+    backgroundColor: '#f7ecdf',
     borderRadius: 18,
     padding: 14,
     gap: 12,
     borderWidth: 1,
-    borderColor: '#1f283c',
+    borderColor: '#e2cfba',
   },
   stackCardSelected: {
     borderColor: tokens.cyan,
@@ -304,9 +304,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyPiece: {
-    backgroundColor: '#171c2b',
+    backgroundColor: '#fff7ee',
     borderWidth: 1,
-    borderColor: '#252e44',
+    borderColor: '#e8dccc',
   },
   cakePiece: {
     borderRadius: 14,
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   pieceLabel: {
-    color: '#fff',
+    color: '#644d3f',
     fontSize: 12,
     fontWeight: '800',
   },

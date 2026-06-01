@@ -1,17 +1,19 @@
 import { StyleSheet } from 'react-native';
 
 export const tokens = {
-  background: '#10131f',
-  surface: '#171c2b',
-  surfaceStrong: '#1d2234',
-  text: '#f5f7ff',
-  subtleText: '#98a3c7',
-  cyan: '#61dafb',
-  gold: '#ffd65c',
-  pink: '#ff7da5',
-  green: '#61d394',
-  danger: '#ff6b7a',
-  border: '#2a3148',
+  background: '#f7efe2',
+  surface: '#fffaf3',
+  surfaceStrong: '#f2e6d7',
+  text: '#644d3f',
+  subtleText: '#9b806d',
+  cyan: '#b5d7d1',
+  gold: '#efcf92',
+  pink: '#efbcc9',
+  green: '#bfd8bb',
+  danger: '#d98f8e',
+  border: '#e4d2bf',
+  lavender: '#d9c8e8',
+  peach: '#f5d6bf',
 } as const;
 
 export const screenStyles = StyleSheet.create({

@@ -76,7 +76,9 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   backButton: {
     alignSelf: 'flex-start',
-    backgroundColor: tokens.surface,
+    backgroundColor: '#fbf4eb',
+    borderWidth: 1,
+    borderColor: tokens.border,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 14,
@@ -87,6 +89,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   hero: {
+    backgroundColor: tokens.surface,
+    borderWidth: 1,
+    borderColor: tokens.border,
+    borderRadius: 20,
+    padding: 20,
     gap: 8,
   },
   title: {
@@ -101,6 +108,8 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: tokens.surface,
+    borderWidth: 1,
+    borderColor: tokens.border,
     borderRadius: 20,
     padding: 18,
     gap: 14,
@@ -122,6 +131,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0e4d7',
   },
   detailLabel: {
     color: tokens.subtleText,
@@ -134,13 +146,15 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     alignSelf: 'flex-start',
-    backgroundColor: '#5b2233',
+    backgroundColor: tokens.pink,
+    borderWidth: 1,
+    borderColor: '#e1b1bf',
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
   resetButtonText: {
-    color: '#ffd7e1',
+    color: '#745463',
     fontSize: 14,
     fontWeight: '800',
   },

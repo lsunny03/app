@@ -15,7 +15,7 @@ const config: ExpoConfig = {
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   scheme: isAdminBuild ? 'pocketarcadeadmin' : 'pocketarcade',
-  userInterfaceStyle: 'automatic',
+  userInterfaceStyle: 'light',
   ios: {
     icon: './assets/expo.icon',
     bundleIdentifier: isAdminBuild
