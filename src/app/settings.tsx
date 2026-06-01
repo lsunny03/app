@@ -1,12 +1,13 @@
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useGameApp } from '@/features/game-app-context';
 import { screenStyles, tokens } from '@/features/theme';
 
 export default function SettingsScreen() {
-  const { state, resetProgress, toggleAdminMode } = useGameApp();
+  const { appVariant, isAdminBuild, monetizationEnabled, resetProgress, state, sponsoredBonus } =
+    useGameApp();
 
   return (
     <SafeAreaView style={screenStyles.safeArea}>
@@ -18,34 +19,33 @@ export default function SettingsScreen() {
         <View style={styles.hero}>
           <Text style={styles.title}>Settings</Text>
           <Text style={styles.subtitle}>
-            Use admin mode for an ad-free studio build, then reset data to test the free-player
-            loop again.
+            This app now treats admin access as a build profile instead of a player-facing toggle.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <View style={styles.toggleRow}>
-            <View style={styles.toggleCopy}>
-              <Text style={styles.cardTitle}>Admin mode</Text>
-              <Text style={styles.cardBody}>
-                Removes ads, unlocks premium preview surfaces, and grants free boosters.
-              </Text>
-            </View>
-            <Switch
-              value={state.adminMode}
-              onValueChange={toggleAdminMode}
-              trackColor={{ false: '#3c445a', true: '#3f9e74' }}
-              thumbColor={state.adminMode ? '#ebfff5' : '#f4f6fb'}
+          <Text style={styles.cardTitle}>Build variant</Text>
+          <Text style={styles.cardBody}>
+            {isAdminBuild
+              ? 'Admin builds are ad-free and skip monetization SDK usage entirely.'
+              : 'Consumer builds keep rewarded ads enabled on iOS and Android for bonus claims.'}
+          </Text>
+          <View style={styles.detailList}>
+            <DetailRow label="Variant" value={appVariant === 'admin' ? 'Admin' : 'Consumer'} />
+            <DetailRow label="Monetization" value={monetizationEnabled ? 'Enabled' : 'Disabled'} />
+            <DetailRow
+              label="Rewarded bonus"
+              value={isAdminBuild ? 'Hidden' : sponsoredBonus.supported ? 'Available' : 'Device only'}
             />
           </View>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Build profile</Text>
-          <Text style={styles.cardBody}>Offline-first play sessions and local progression only.</Text>
+          <Text style={styles.cardTitle}>Economy state</Text>
+          <Text style={styles.cardBody}>All progression is still local and offline-first.</Text>
           <View style={styles.detailList}>
-            <DetailRow label="Mode" value={state.adminMode ? 'Admin preview' : 'Free player'} />
-            <DetailRow label="Sponsored bonus taps" value={String(state.adsSeen)} />
+            <DetailRow label="Coins" value={String(state.coins)} />
+            <DetailRow label="Rewarded claims" value={String(state.adsSeen)} />
             <DetailRow label="Local sessions" value={String(state.sessionsPlayed)} />
           </View>
         </View>
@@ -53,7 +53,7 @@ export default function SettingsScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Reset local data</Text>
           <Text style={styles.cardBody}>
-            Clears coins, boosters, and saved best scores on this device.
+            Clears coins, boosters, saved best scores, and rewarded bonus limits on this device.
           </Text>
           <Pressable onPress={resetProgress} style={styles.resetButton}>
             <Text style={styles.resetButtonText}>Reset progress</Text>
@@ -104,15 +104,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 18,
     gap: 14,
-  },
-  toggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-  },
-  toggleCopy: {
-    flex: 1,
-    gap: 6,
   },
   cardTitle: {
     color: tokens.text,

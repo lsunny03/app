@@ -1,12 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { ActionButton, GameSurface, StatRow } from './shared';
+import { BoosterRow, ActionButton, GameSurface, StatRow } from './shared';
 
+import { useGameApp } from '@/features/game-app-context';
 import { tokens } from '@/features/theme';
 
 const SIZE = 4;
 const FRUITS = ['.', 'Cherry', 'Strawberry', 'Orange', 'Peach', 'Pineapple', 'Melon', 'Dragon'];
+
+type FruitHistory = {
+  board: number[];
+  score: number;
+  status: 'ready' | 'live' | 'ended';
+};
 
 function getEmptyIndexes(board: number[]) {
   return board.flatMap((value, index) => (value === 0 ? [index] : []));
@@ -108,7 +115,9 @@ function hasMoves(board: number[]) {
 }
 
 export function FruitMergeGame({ onComplete }: { onComplete: (score: number) => void }) {
+  const { consumeBooster, isAdminBuild, state } = useGameApp();
   const [board, setBoard] = useState(seedBoard);
+  const [history, setHistory] = useState<FruitHistory | null>(null);
   const [score, setScore] = useState(0);
   const [status, setStatus] = useState<'ready' | 'live' | 'ended'>('ready');
   const completionRef = useRef(false);
@@ -127,6 +136,12 @@ export function FruitMergeGame({ onComplete }: { onComplete: (score: number) => 
     if (!result.moved) {
       return;
     }
+
+    setHistory({
+      board: [...board],
+      score,
+      status,
+    });
     setBoard(result.board);
     setScore((current) => current + result.gained);
     setStatus(hasMoves(result.board) ? 'live' : 'ended');
@@ -135,19 +150,51 @@ export function FruitMergeGame({ onComplete }: { onComplete: (score: number) => 
   function reset() {
     completionRef.current = false;
     setBoard(seedBoard());
+    setHistory(null);
     setScore(0);
     setStatus('ready');
+  }
+
+  function useUndoBoost() {
+    if (!history || !consumeBooster('undo')) {
+      return;
+    }
+
+    setBoard(history.board);
+    setScore(history.score);
+    setStatus(history.status);
+    setHistory(null);
+  }
+
+  function useMagnetBoost() {
+    const targetIndex = board.findIndex((value) => value > 0 && value < FRUITS.length - 1);
+    if (targetIndex === -1 || !consumeBooster('magnet')) {
+      return;
+    }
+
+    const nextBoard = [...board];
+    nextBoard[targetIndex] += 1;
+
+    setHistory({
+      board: [...board],
+      score,
+      status,
+    });
+    setBoard(nextBoard);
+    setScore((current) => current + nextBoard[targetIndex] * 20);
+    setStatus(hasMoves(nextBoard) ? 'live' : 'ended');
   }
 
   return (
     <GameSurface
       title="Fruit Merge"
-      subtitle="Slide the orchard, stack matching fruit, and keep the board breathing.">
+      subtitle="Slide the orchard, stack matching fruit, and rescue bad boards with live boosters.">
       <StatRow
         items={[
           { label: 'Score', value: String(score) },
           { label: 'Top fruit', value: FRUITS[highestFruit] ?? 'Cherry' },
-          { label: 'Status', value: status === 'ended' ? 'Stalled' : status === 'live' ? 'Live' : 'Ready' },
+          { label: 'Undo', value: isAdminBuild ? 'Admin' : String(state.boosters.undo) },
+          { label: 'Magnet', value: isAdminBuild ? 'Admin' : String(state.boosters.magnet) },
         ]}
       />
 
@@ -164,28 +211,34 @@ export function FruitMergeGame({ onComplete }: { onComplete: (score: number) => 
         ))}
       </View>
 
-      <View style={styles.controls}>
-        <Pressable onPress={() => handleMove('up')} style={styles.arrowButton}>
-          <Text style={styles.arrowLabel}>Up</Text>
-        </Pressable>
-        <View style={styles.row}>
-          <Pressable onPress={() => handleMove('left')} style={styles.arrowButton}>
-            <Text style={styles.arrowLabel}>Left</Text>
-          </Pressable>
-          <Pressable onPress={() => handleMove('right')} style={styles.arrowButton}>
-            <Text style={styles.arrowLabel}>Right</Text>
-          </Pressable>
-        </View>
-        <Pressable onPress={() => handleMove('down')} style={styles.arrowButton}>
-          <Text style={styles.arrowLabel}>Down</Text>
-        </Pressable>
-      </View>
-
-      <ActionButton
-        label={status === 'ended' ? 'Retry orchard' : 'Reset board'}
-        onPress={reset}
-        tone="primary"
+      <BoosterRow
+        items={[
+          {
+            disabled: !history || (!isAdminBuild && state.boosters.undo < 1),
+            label: isAdminBuild ? 'Undo move' : `Undo (${state.boosters.undo})`,
+            onPress: useUndoBoost,
+          },
+          {
+            disabled: !board.some((value) => value > 0 && value < FRUITS.length - 1) || (!isAdminBuild && state.boosters.magnet < 1),
+            label: isAdminBuild ? 'Magnet' : `Magnet (${state.boosters.magnet})`,
+            onPress: useMagnetBoost,
+          },
+          {
+            label: status === 'ended' ? 'Retry orchard' : 'Reset board',
+            onPress: reset,
+            tone: 'primary',
+          },
+        ]}
       />
+
+      <View style={styles.controls}>
+        <ActionButton label="Up" onPress={() => handleMove('up')} />
+        <View style={styles.row}>
+          <ActionButton label="Left" onPress={() => handleMove('left')} />
+          <ActionButton label="Right" onPress={() => handleMove('right')} />
+        </View>
+        <ActionButton label="Down" onPress={() => handleMove('down')} />
+      </View>
     </GameSurface>
   );
 }
@@ -233,16 +286,5 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     gap: 10,
-  },
-  arrowButton: {
-    backgroundColor: tokens.surfaceStrong,
-    borderRadius: 14,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  arrowLabel: {
-    color: tokens.text,
-    fontSize: 14,
-    fontWeight: '800',
   },
 });

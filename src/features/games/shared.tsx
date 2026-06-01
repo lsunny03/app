@@ -26,20 +26,27 @@ export function ActionButton({
   label,
   onPress,
   tone = 'secondary',
+  disabled = false,
 }: {
   label: string;
   onPress: () => void;
   tone?: 'primary' | 'secondary';
+  disabled?: boolean;
 }) {
   return (
     <Pressable
+      disabled={disabled}
       onPress={onPress}
       style={[
         styles.actionButton,
         tone === 'primary' ? styles.primaryButton : styles.secondaryButton,
+        disabled && styles.disabledButton,
       ]}>
       <Text
-        style={[styles.actionLabel, tone === 'primary' ? styles.primaryLabel : styles.secondaryLabel]}>
+        style={[
+          styles.actionLabel,
+          tone === 'primary' ? styles.primaryLabel : styles.secondaryLabel,
+        ]}>
         {label}
       </Text>
     </Pressable>
@@ -54,6 +61,31 @@ export function StatRow({ items }: { items: { label: string; value: string }[] }
           <Text style={styles.statLabel}>{item.label}</Text>
           <Text style={styles.statValue}>{item.value}</Text>
         </View>
+      ))}
+    </View>
+  );
+}
+
+export function BoosterRow({
+  items,
+}: {
+  items: {
+    disabled?: boolean;
+    label: string;
+    onPress: () => void;
+    tone?: 'primary' | 'secondary';
+  }[];
+}) {
+  return (
+    <View style={styles.boosterRow}>
+      {items.map((item) => (
+        <ActionButton
+          key={item.label}
+          disabled={item.disabled}
+          label={item.label}
+          onPress={item.onPress}
+          tone={item.tone}
+        />
       ))}
     </View>
   );
@@ -92,6 +124,9 @@ const styles = StyleSheet.create({
   secondaryButton: {
     backgroundColor: tokens.surfaceStrong,
   },
+  disabledButton: {
+    opacity: 0.4,
+  },
   actionLabel: {
     fontSize: 14,
     fontWeight: '800',
@@ -125,5 +160,10 @@ const styles = StyleSheet.create({
     color: tokens.text,
     fontSize: 16,
     fontWeight: '800',
+  },
+  boosterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
   },
 });

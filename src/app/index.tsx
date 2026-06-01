@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,7 +8,21 @@ import { useGameApp } from '@/features/game-app-context';
 import { screenStyles, tokens } from '@/features/theme';
 
 export default function HomeScreen() {
-  const { state, loading, redeemSponsoredBonus } = useGameApp();
+  const {
+    appVariant,
+    claimSponsoredBonus,
+    claimingSponsoredBonus,
+    isAdminBuild,
+    loading,
+    sponsoredBonus,
+    state,
+  } = useGameApp();
+  const [bonusMessage, setBonusMessage] = useState<string | null>(null);
+
+  async function handleClaimSponsoredBonus() {
+    const result = await claimSponsoredBonus();
+    setBonusMessage(result.message);
+  }
 
   return (
     <SafeAreaView style={screenStyles.safeArea}>
@@ -25,39 +40,49 @@ export default function HomeScreen() {
             <StatPill label="Coins" value={state.coins.toString()} tone="gold" />
             <StatPill label="Sessions" value={state.sessionsPlayed.toString()} tone="blue" />
             <StatPill
-              label="Mode"
-              value={state.adminMode ? 'Admin' : 'Player'}
-              tone={state.adminMode ? 'green' : 'purple'}
+              label="Build"
+              value={isAdminBuild ? 'Admin' : 'Consumer'}
+              tone={isAdminBuild ? 'green' : 'purple'}
             />
           </View>
         </View>
 
-        {!state.adminMode ? (
+        {!isAdminBuild ? (
           <View style={styles.sponsorCard}>
             <View style={styles.sectionHeader}>
-              <View>
-                <Text style={styles.sectionTitle}>Sponsored bonus</Text>
+              <View style={styles.flexCopy}>
+                <Text style={styles.sectionTitle}>Rewarded coin bonus</Text>
                 <Text style={styles.sectionBody}>
-                  Claim a quick bonus before the next run and keep the free version growing.
+                  Watch a rewarded ad on iOS or Android to claim bonus coins without breaking the
+                  free-player loop.
                 </Text>
               </View>
-              <Pressable onPress={redeemSponsoredBonus} style={styles.primaryAction}>
-                <Text style={styles.primaryActionText}>+35 coins</Text>
+              <Pressable
+                disabled={!sponsoredBonus.canClaim || claimingSponsoredBonus}
+                onPress={handleClaimSponsoredBonus}
+                style={[
+                  styles.primaryAction,
+                  (!sponsoredBonus.canClaim || claimingSponsoredBonus) && styles.primaryActionDisabled,
+                ]}>
+                <Text style={styles.primaryActionText}>
+                  {claimingSponsoredBonus ? 'Loading...' : sponsoredBonus.supported ? '+35 coins' : 'On device'}
+                </Text>
               </Pressable>
             </View>
+            <Text style={styles.sponsorHint}>{bonusMessage || sponsoredBonus.message}</Text>
           </View>
         ) : (
           <View style={styles.adminCard}>
             <Text style={styles.sectionTitle}>Admin build active</Text>
             <Text style={styles.sectionBody}>
-              Ads are suppressed, premium previews are unlocked, and booster costs are waived.
+              This build omits rewarded ads entirely and keeps booster usage free for QA and tuning.
             </Text>
           </View>
         )}
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <View>
+            <View style={styles.flexCopy}>
               <Text style={styles.sectionTitle}>Game library</Text>
               <Text style={styles.sectionBody}>Pick up a run in under a minute, even offline.</Text>
             </View>
@@ -94,10 +119,10 @@ export default function HomeScreen() {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <View>
+            <View style={styles.flexCopy}>
               <Text style={styles.sectionTitle}>Studio controls</Text>
               <Text style={styles.sectionBody}>
-                Tune the free-player loop or flip into admin mode for testing.
+                Inspect the current build variant, local economy, and test reset controls.
               </Text>
             </View>
             <Pressable onPress={() => router.push('/settings')} style={styles.secondaryAction}>
@@ -107,9 +132,9 @@ export default function HomeScreen() {
 
           <View style={styles.statsGrid}>
             <InfoCard
-              title="Ad views"
+              title="Rewarded claims"
               value={String(state.adsSeen)}
-              description="Counts sponsored bonus taps taken in the free build."
+              description="Counts rewarded bonus claims completed through the real ad flow."
             />
             <InfoCard
               title="Boosters"
@@ -119,12 +144,12 @@ export default function HomeScreen() {
                   state.boosters.shuffle +
                   state.boosters.magnet
               )}
-              description="Consumables earned or granted for run tuning."
+              description="Consumables ready to use directly inside puzzle and arcade runs."
             />
             <InfoCard
-              title="Last played"
-              value={state.lastPlayed ? GAME_LIBRARY_MAP[state.lastPlayed].title : 'None'}
-              description="Useful for picking up balancing work fast."
+              title="Variant"
+              value={appVariant === 'admin' ? 'Ad-free admin' : 'Monetized player'}
+              description="Controlled by the build profile instead of a player-facing toggle."
             />
           </View>
         </View>
@@ -178,11 +203,6 @@ function InfoCard({
     </View>
   );
 }
-
-const GAME_LIBRARY_MAP = Object.fromEntries(GAME_LIBRARY.map((game) => [game.slug, game])) as Record<
-  (typeof GAME_LIBRARY)[number]['slug'],
-  (typeof GAME_LIBRARY)[number]
->;
 
 const statToneStyles = StyleSheet.create({
   gold: { backgroundColor: '#372f17' },
@@ -246,6 +266,12 @@ const styles = StyleSheet.create({
     padding: 20,
     borderWidth: 1,
     borderColor: '#504e76',
+    gap: 12,
+  },
+  sponsorHint: {
+    color: tokens.subtleText,
+    fontSize: 13,
+    lineHeight: 19,
   },
   adminCard: {
     backgroundColor: '#173127',
@@ -254,6 +280,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#2e6a53',
     gap: 8,
+  },
+  flexCopy: {
+    flex: 1,
   },
   section: {
     gap: 18,
@@ -281,6 +310,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 14,
+  },
+  primaryActionDisabled: {
+    opacity: 0.45,
   },
   primaryActionText: {
     color: '#241b00',

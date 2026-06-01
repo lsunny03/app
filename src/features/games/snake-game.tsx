@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { ActionButton, GameSurface, StatRow } from './shared';
+import { BoosterRow, ActionButton, GameSurface, StatRow } from './shared';
 
+import { useGameApp } from '@/features/game-app-context';
 import { tokens } from '@/features/theme';
 
 const BOARD_SIZE = 12;
 const INITIAL_SNAKE = [39, 38, 37];
+const FREEZE_DURATION_MS = 4000;
 
 type Direction = 'up' | 'down' | 'left' | 'right';
 
@@ -19,6 +21,9 @@ function randomFood(excluded: number[]) {
 }
 
 export function SnakeGame({ onComplete }: { onComplete: (score: number) => void }) {
+  const { consumeBooster, isAdminBuild, state } = useGameApp();
+  const [freezeUntil, setFreezeUntil] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
   const [snake, setSnake] = useState(INITIAL_SNAKE);
   const [direction, setDirection] = useState<Direction>('right');
   const [food, setFood] = useState(() => randomFood(INITIAL_SNAKE));
@@ -33,6 +38,10 @@ export function SnakeGame({ onComplete }: { onComplete: (score: number) => void 
     }
 
     const timer = setInterval(() => {
+      if (Date.now() < freezeUntil) {
+        return;
+      }
+
       setSnake((currentSnake) => {
         const head = currentSnake[0];
         const row = Math.floor(head / BOARD_SIZE);
@@ -73,7 +82,7 @@ export function SnakeGame({ onComplete }: { onComplete: (score: number) => void 
     }, 220);
 
     return () => clearInterval(timer);
-  }, [direction, food, running]);
+  }, [direction, food, freezeUntil, running]);
 
   useEffect(() => {
     if (status !== 'ended' || completionRef.current) {
@@ -83,6 +92,18 @@ export function SnakeGame({ onComplete }: { onComplete: (score: number) => void 
     completionRef.current = true;
     onComplete(score);
   }, [onComplete, score, status]);
+
+  useEffect(() => {
+    if (!running && freezeUntil <= Date.now()) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 200);
+
+    return () => clearInterval(timer);
+  }, [freezeUntil, running]);
 
   const cells = useMemo(
     () =>
@@ -94,6 +115,8 @@ export function SnakeGame({ onComplete }: { onComplete: (score: number) => void 
   );
 
   function startGame() {
+    setFreezeUntil(0);
+    setNow(Date.now());
     setSnake(INITIAL_SNAKE);
     setDirection('right');
     setFood(randomFood(INITIAL_SNAKE));
@@ -103,15 +126,41 @@ export function SnakeGame({ onComplete }: { onComplete: (score: number) => void 
     completionRef.current = false;
   }
 
+  function useFreezeBoost() {
+    if (status !== 'running') {
+      return;
+    }
+
+    if (!consumeBooster('freeze')) {
+      return;
+    }
+
+    setFreezeUntil(Date.now() + FREEZE_DURATION_MS);
+  }
+
+  const freezeBoosts = isAdminBuild ? 'Admin' : String(state.boosters.freeze);
+  const freezeActive = now < freezeUntil;
+
   return (
     <GameSurface
       title="Snake Sprint"
-      subtitle="Tap into a direction and ride the speed curve. A clean path matters more than raw taps.">
+      subtitle="Tap into a direction and ride the speed curve. Freeze buys a short reset window when a run gets tight.">
       <StatRow
         items={[
           { label: 'Score', value: String(score) },
           { label: 'Length', value: String(snake.length) },
-          { label: 'Status', value: status === 'ready' ? 'Ready' : status === 'running' ? 'Live' : 'Crash' },
+          { label: 'Freeze', value: freezeBoosts },
+          {
+            label: 'Status',
+            value:
+              status === 'ready'
+                ? 'Ready'
+                : status === 'running'
+                  ? freezeActive
+                    ? 'Frozen'
+                    : 'Live'
+                  : 'Crash',
+          },
         ]}
       />
 
@@ -131,30 +180,36 @@ export function SnakeGame({ onComplete }: { onComplete: (score: number) => void 
         ))}
       </View>
 
+      <BoosterRow
+        items={[
+          {
+            disabled: status !== 'running' || (!isAdminBuild && state.boosters.freeze < 1),
+            label: isAdminBuild ? 'Freeze' : `Freeze (${state.boosters.freeze})`,
+            onPress: useFreezeBoost,
+          },
+          {
+            label: status === 'running' ? 'Restart' : status === 'ended' ? 'Retry' : 'Start',
+            onPress: startGame,
+            tone: 'primary',
+          },
+        ]}
+      />
+
       <View style={styles.controls}>
-        <Pressable onPress={() => setDirection('up')} style={styles.arrowButton}>
-          <Text style={styles.arrowLabel}>Up</Text>
-        </Pressable>
+        <ActionButton label="Up" onPress={() => setDirection('up')} />
         <View style={styles.middleControls}>
-          <Pressable onPress={() => setDirection('left')} style={styles.arrowButton}>
-            <Text style={styles.arrowLabel}>Left</Text>
-          </Pressable>
-          <Pressable onPress={() => setDirection('right')} style={styles.arrowButton}>
-            <Text style={styles.arrowLabel}>Right</Text>
-          </Pressable>
+          <ActionButton label="Left" onPress={() => setDirection('left')} />
+          <ActionButton label="Right" onPress={() => setDirection('right')} />
         </View>
-        <Pressable onPress={() => setDirection('down')} style={styles.arrowButton}>
-          <Text style={styles.arrowLabel}>Down</Text>
-        </Pressable>
+        <ActionButton label="Down" onPress={() => setDirection('down')} />
       </View>
 
       <View style={styles.footer}>
-        <ActionButton
-          label={status === 'running' ? 'Restart' : status === 'ended' ? 'Retry' : 'Start'}
-          onPress={startGame}
-          tone="primary"
-        />
-        {status === 'ended' ? <Text style={styles.helper}>Run ended. Start again for a fresh payout.</Text> : null}
+        <Text style={styles.helper}>
+          {freezeActive
+            ? 'Freeze is active. Use the pause to plan your next turn.'
+            : 'Rewarded ads now live on the home screen while freeze remains a real consumable here.'}
+        </Text>
       </View>
     </GameSurface>
   );
@@ -187,17 +242,6 @@ const styles = StyleSheet.create({
   middleControls: {
     flexDirection: 'row',
     gap: 10,
-  },
-  arrowButton: {
-    backgroundColor: tokens.surfaceStrong,
-    borderRadius: 14,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  arrowLabel: {
-    color: tokens.text,
-    fontSize: 14,
-    fontWeight: '800',
   },
   footer: {
     flexDirection: 'row',

@@ -6,7 +6,7 @@ import { SHOP_BOOSTERS, useGameApp } from '@/features/game-app-context';
 import { screenStyles, tokens } from '@/features/theme';
 
 export default function ShopScreen() {
-  const { state, buyBooster } = useGameApp();
+  const { buyBooster, isAdminBuild, state } = useGameApp();
 
   return (
     <SafeAreaView style={screenStyles.safeArea}>
@@ -18,7 +18,7 @@ export default function ShopScreen() {
           <View style={styles.headerText}>
             <Text style={styles.title}>Shop</Text>
             <Text style={styles.subtitle}>
-              Soft-currency boosts, monetization surfaces, and an ad-free admin preview.
+              Buy real gameplay boosts with coins, or keep them included in the admin build.
             </Text>
           </View>
           <View style={styles.wallet}>
@@ -30,7 +30,7 @@ export default function ShopScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Boost inventory</Text>
           <Text style={styles.sectionBody}>
-            Spend coins from successful runs, or grant them for free in admin mode.
+            Every boost below now changes the game it belongs to instead of sitting idle in storage.
           </Text>
           <View style={styles.boosterList}>
             {SHOP_BOOSTERS.map((booster) => (
@@ -45,12 +45,11 @@ export default function ShopScreen() {
 
                 <View style={styles.boosterFooter}>
                   <Text style={styles.stockLabel}>
-                    Owned {state.boosters[booster.key]} · {state.adminMode ? 'Free' : `${booster.cost} coins`}
+                    Owned {state.boosters[booster.key]} ·{' '}
+                    {isAdminBuild ? 'Included in admin build' : `${booster.cost} coins`}
                   </Text>
-                  <Pressable
-                    onPress={() => buyBooster(booster.key)}
-                    style={styles.buyButton}>
-                    <Text style={styles.buyButtonText}>{state.adminMode ? 'Grant' : 'Buy'}</Text>
+                  <Pressable onPress={() => buyBooster(booster.key)} style={styles.buyButton}>
+                    <Text style={styles.buyButtonText}>{isAdminBuild ? 'Add' : 'Buy'}</Text>
                   </Pressable>
                 </View>
               </View>
@@ -61,17 +60,16 @@ export default function ShopScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Monetization layout</Text>
           <View style={styles.monetizationCard}>
-            <Text style={styles.planTitle}>Free player loop</Text>
+            <Text style={styles.planTitle}>Consumer build</Text>
             <Text style={styles.planBody}>
-              Sponsored bonus prompts and optional premium upsell screens keep the default build
-              free to install while preserving short session flow.
+              Rewarded ads grant bonus coins on supported mobile builds, while boosters use soft
+              currency earned in play.
             </Text>
           </View>
           <View style={styles.monetizationCard}>
-            <Text style={styles.planTitle}>Premium / admin lane</Text>
+            <Text style={styles.planTitle}>Admin build</Text>
             <Text style={styles.planBody}>
-              Admin mode disables ads, unlocks premium previews, and removes booster costs so QA
-              and content tuning stay friction-free.
+              Admin builds remove rewarded ads entirely and keep booster access friction-free for QA.
             </Text>
           </View>
         </View>

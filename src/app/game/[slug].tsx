@@ -12,7 +12,7 @@ import { screenStyles, tokens } from '@/features/theme';
 
 export default function GameScreen() {
   const { slug } = useLocalSearchParams<{ slug?: string }>();
-  const { recordSession, state } = useGameApp();
+  const { isAdminBuild, recordSession, state } = useGameApp();
 
   if (!slug || !isGameSlug(slug)) {
     return (
@@ -50,14 +50,22 @@ export default function GameScreen() {
           </View>
         </View>
 
-        {!state.adminMode ? (
+        {!isAdminBuild ? (
           <View style={styles.banner}>
-            <Text style={styles.bannerTitle}>Free build</Text>
+            <Text style={styles.bannerTitle}>Consumer build</Text>
             <Text style={styles.bannerBody}>
-              Sponsored bonus prompts stay visible in the player version. Admin mode removes them.
+              Rewarded bonus ads stay on the home screen only. Boosters bought in the shop now work
+              directly inside these game runs.
             </Text>
           </View>
-        ) : null}
+        ) : (
+          <View style={styles.banner}>
+            <Text style={styles.bannerTitle}>Admin build</Text>
+            <Text style={styles.bannerBody}>
+              Ads are removed and boosters can be used without spending inventory.
+            </Text>
+          </View>
+        )}
 
         {slug === 'snake' ? <SnakeGame onComplete={(score) => recordSession(slug, score)} /> : null}
         {slug === 'fruit-merge' ? (

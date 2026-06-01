@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { ActionButton, GameSurface, StatRow } from './shared';
+import { BoosterRow, GameSurface, StatRow } from './shared';
 
+import { useGameApp } from '@/features/game-app-context';
 import { tokens } from '@/features/theme';
 
 type VariantConfig = {
@@ -12,6 +13,12 @@ type VariantConfig = {
   emptyColumns: number;
   colors: string[];
   label: string;
+};
+
+type StackHistory = {
+  moves: number;
+  stacks: string[][];
+  status: 'ready' | 'live' | 'solved';
 };
 
 const CONFIGS: Record<'cake' | 'screw', VariantConfig> = {
@@ -97,7 +104,9 @@ export function StackSortGame({
   variant: 'cake' | 'screw';
   onComplete: (score: number) => void;
 }) {
+  const { consumeBooster, isAdminBuild, state } = useGameApp();
   const config = CONFIGS[variant];
+  const [history, setHistory] = useState<StackHistory | null>(null);
   const [stacks, setStacks] = useState(() => generatePuzzle(config));
   const [selected, setSelected] = useState<number | null>(null);
   const [moves, setMoves] = useState(0);
@@ -113,10 +122,35 @@ export function StackSortGame({
 
   function restart() {
     completionRef.current = false;
+    setHistory(null);
     setStacks(generatePuzzle(config));
     setSelected(null);
     setMoves(0);
     setStatus('ready');
+  }
+
+  function useUndoBoost() {
+    if (!history || !consumeBooster('undo')) {
+      return;
+    }
+
+    setStacks(history.stacks.map((stack) => [...stack]));
+    setMoves(history.moves);
+    setSelected(null);
+    setStatus(history.status);
+    setHistory(null);
+  }
+
+  function useShuffleBoost() {
+    if (!consumeBooster('shuffle')) {
+      return;
+    }
+
+    completionRef.current = false;
+    setHistory(null);
+    setStacks(generatePuzzle(config));
+    setSelected(null);
+    setStatus('live');
   }
 
   function handleColumnPress(index: number) {
@@ -150,13 +184,18 @@ export function StackSortGame({
       return;
     }
 
+    setHistory({
+      moves,
+      stacks: stacks.map((stack) => [...stack]),
+      status,
+    });
+
     const next = stacks.map((stack) => [...stack]);
     next[selected].pop();
     next[index].push(moving);
     setStacks(next);
     setMoves((currentMoves) => currentMoves + 1);
     setStatus(isSolved(next, config.capacity) ? 'solved' : 'live');
-
     setSelected(null);
   }
 
@@ -166,9 +205,27 @@ export function StackSortGame({
         items={[
           { label: 'Moves', value: String(moves) },
           { label: config.label, value: String(stacks.flat().length) },
+          { label: 'Undo', value: isAdminBuild ? 'Admin' : String(state.boosters.undo) },
+          { label: 'Shuffle', value: isAdminBuild ? 'Admin' : String(state.boosters.shuffle) },
+        ]}
+      />
+
+      <BoosterRow
+        items={[
           {
-            label: 'Status',
-            value: status === 'solved' ? 'Solved' : status === 'live' ? 'Live' : 'Ready',
+            disabled: !history || (!isAdminBuild && state.boosters.undo < 1),
+            label: isAdminBuild ? 'Undo move' : `Undo (${state.boosters.undo})`,
+            onPress: useUndoBoost,
+          },
+          {
+            disabled: !isAdminBuild && state.boosters.shuffle < 1,
+            label: isAdminBuild ? 'Shuffle boost' : `Shuffle (${state.boosters.shuffle})`,
+            onPress: useShuffleBoost,
+          },
+          {
+            label: status === 'solved' ? 'New puzzle' : 'Restart run',
+            onPress: restart,
+            tone: 'primary',
           },
         ]}
       />
@@ -210,12 +267,6 @@ export function StackSortGame({
           </Pressable>
         ))}
       </View>
-
-      <ActionButton
-        label={status === 'solved' ? 'New puzzle' : 'Shuffle puzzle'}
-        onPress={restart}
-        tone="primary"
-      />
     </GameSurface>
   );
 }
