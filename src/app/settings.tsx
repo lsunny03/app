@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useGameApp } from '@/features/game-app-context';
-import { HeaderButton, InfoPanel, MobileShell } from '@/features/navigation/mobile-shell';
+import { BadgePill, HeaderButton, IconRow, InfoPanel, MobileShell } from '@/features/navigation/mobile-shell';
 import { tokens } from '@/features/theme';
 
 export default function SettingsScreen() {
@@ -13,37 +13,69 @@ export default function SettingsScreen() {
       activeTab="settings"
       header={
         <View style={styles.hero}>
-          <Text style={styles.eyebrow}>Studio controls</Text>
-          <Text style={styles.title}>Tune the build without leaving the app.</Text>
+          <View style={styles.badgeRow}>
+            <BadgePill
+              iconFallback="✓"
+              iconName={{ ios: 'person.crop.square.fill', android: 'account_box', web: 'account_box' }}
+              label={appVariant === 'admin' ? 'Admin build' : 'Consumer build'}
+              tone={isAdminBuild ? 'mint' : 'lavender'}
+            />
+            <BadgePill
+              iconFallback="•"
+              iconName={{ ios: 'gearshape.fill', android: 'settings', web: 'settings' }}
+              label="Local controls"
+              tone="neutral"
+            />
+          </View>
+
+          <Text style={styles.title}>Tidy controls for the build behind the scenes.</Text>
           <Text style={styles.subtitle}>
-            The player and admin lanes now stay separate at the build level instead of hiding behind a toggle.
+            Keep the player and admin lanes readable without burying the useful device-level details.
           </Text>
         </View>
       }>
       <InfoPanel>
-        <Text style={styles.cardTitle}>Build variant</Text>
+        <IconRow
+          iconFallback="✓"
+          iconName={{ ios: 'checkmark.seal.fill', android: 'verified', web: 'verified' }}
+          subtitle="The current release lane and monetization state on this install."
+          title="Build snapshot"
+        />
         <DetailRow label="Variant" value={appVariant === 'admin' ? 'Admin' : 'Consumer'} />
         <DetailRow label="Monetization" value={monetizationEnabled ? 'Enabled' : 'Disabled'} />
         <DetailRow
           label="Rewarded bonus"
-          value={isAdminBuild ? 'Hidden' : sponsoredBonus.supported ? 'Available' : 'Device only'}
+          value={isAdminBuild ? 'Hidden' : sponsoredBonus.supported ? 'Available' : 'Only on device'}
         />
       </InfoPanel>
 
-      <InfoPanel>
-        <Text style={styles.cardTitle}>Local progress</Text>
+      <InfoPanel style={styles.progressPanel}>
+        <IconRow
+          iconFallback="•"
+          iconName={{ ios: 'chart.bar.fill', android: 'bar_chart', web: 'bar_chart' }}
+          subtitle="Everything here is still local and offline-first."
+          title="Progress snapshot"
+        />
         <DetailRow label="Coins" value={String(state.coins)} />
         <DetailRow label="Rewarded claims" value={String(state.adsSeen)} />
         <DetailRow label="Sessions" value={String(state.sessionsPlayed)} />
       </InfoPanel>
 
       <InfoPanel style={styles.resetPanel}>
-        <Text style={styles.cardTitle}>Reset local data</Text>
-        <Text style={styles.bodyText}>
-          Clears coins, boosters, best scores, and reward limits on this device only.
-        </Text>
+        <IconRow
+          iconFallback="!"
+          iconName={{ ios: 'arrow.counterclockwise.circle.fill', android: 'restart_alt', web: 'restart_alt' }}
+          subtitle="This clears saved scores, boosters, coins, and reward cooldowns for this device only."
+          title="Reset local data"
+        />
         <View style={styles.resetWrap}>
-          <HeaderButton label="Reset progress" onPress={resetProgress} tone="primary" />
+          <HeaderButton
+            iconFallback="!"
+            iconName={{ ios: 'arrow.counterclockwise', android: 'restart_alt', web: 'restart_alt' }}
+            label="Reset progress"
+            onPress={resetProgress}
+            tone="primary"
+          />
         </View>
       </InfoPanel>
     </MobileShell>
@@ -61,54 +93,49 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   hero: {
-    gap: 8,
+    gap: 14,
   },
-  eyebrow: {
-    color: '#a88377',
-    fontSize: 13,
-    fontWeight: '700',
-    textTransform: 'uppercase',
+  badgeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
   },
   title: {
     color: tokens.text,
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: '800',
-    lineHeight: 36,
+    lineHeight: 34,
+    maxWidth: 340,
   },
   subtitle: {
     color: tokens.subtleText,
     fontSize: 16,
     lineHeight: 23,
-  },
-  cardTitle: {
-    color: tokens.text,
-    fontSize: 18,
-    fontWeight: '800',
+    maxWidth: 360,
   },
   detailRow: {
-    borderBottomColor: '#f0e4d7',
+    borderBottomColor: '#efe1d3',
     borderBottomWidth: 1,
     gap: 4,
     paddingBottom: 10,
   },
   detailLabel: {
     color: tokens.subtleText,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
+    textTransform: 'uppercase',
   },
   detailValue: {
     color: tokens.text,
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: '800',
+  },
+  progressPanel: {
+    backgroundColor: tokens.cream,
   },
   resetPanel: {
     backgroundColor: '#fff3ea',
     borderColor: '#efd8c3',
-  },
-  bodyText: {
-    color: tokens.subtleText,
-    fontSize: 15,
-    lineHeight: 22,
   },
   resetWrap: {
     alignItems: 'flex-start',

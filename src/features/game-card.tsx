@@ -1,7 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { GameDefinition } from '@/features/game-library';
-import { tokens } from '@/features/theme';
+import { AppIcon } from '@/features/navigation/mobile-shell';
+import { elevations, tokens } from '@/features/theme';
 
 export function GameCard({
   bestScore,
@@ -20,8 +21,11 @@ export function GameCard({
         { borderColor: game.accent },
         pressed && styles.cardPressed,
       ]}>
-      <View style={styles.header}>
-        <Text style={styles.emoji}>{game.emoji}</Text>
+      <View style={[styles.topBand, { backgroundColor: `${game.accent}24` }]}>
+        <View style={[styles.emojiWrap, { borderColor: game.accent, backgroundColor: `${game.accent}36` }]}>
+          <Text style={styles.emoji}>{game.emoji}</Text>
+        </View>
+
         <View style={styles.headerCopy}>
           <Text style={styles.title}>{game.title}</Text>
           <Text style={styles.description}>{game.description}</Text>
@@ -29,11 +33,22 @@ export function GameCard({
       </View>
 
       <View style={styles.metaRow}>
-        <MetaBadge label="Best" value={String(bestScore)} />
-        <MetaBadge label="Hook" value={game.monetizationHook} />
+        <MetaBadge label="Best score" value={String(bestScore)} />
+        <MetaBadge label="Reward loop" value={game.monetizationHook} />
       </View>
 
-      <Text style={styles.playLabel}>Play now</Text>
+      <View style={styles.footer}>
+        <Text style={styles.footerCopy}>Quick start</Text>
+        <View style={[styles.openPill, { backgroundColor: `${game.accent}2f` }]}>
+          <Text style={styles.openLabel}>Open</Text>
+          <AppIcon
+            fallback="→"
+            name={{ ios: 'arrow.right', android: 'arrow_forward', web: 'arrow_forward' }}
+            size={14}
+            tintColor="#715a4b"
+          />
+        </View>
+      </View>
     </Pressable>
   );
 }
@@ -49,39 +64,50 @@ function MetaBadge({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   card: {
+    ...elevations.card,
     backgroundColor: tokens.surface,
-    borderRadius: 22,
+    borderRadius: 24,
     borderWidth: 1,
     gap: 14,
-    minHeight: 188,
-    padding: 20,
+    overflow: 'hidden',
+    padding: 18,
   },
   cardPressed: {
-    opacity: 0.94,
-    transform: [{ scale: 0.988 }],
+    opacity: 0.95,
+    transform: [{ scale: 0.99 }],
   },
-  header: {
-    alignItems: 'flex-start',
+  topBand: {
+    borderColor: '#ffffffc7',
+    borderRadius: 20,
+    borderWidth: 1,
     flexDirection: 'row',
     gap: 14,
+    padding: 14,
+  },
+  emojiWrap: {
+    alignItems: 'center',
+    borderRadius: 18,
+    borderWidth: 1,
+    height: 62,
+    justifyContent: 'center',
+    width: 62,
   },
   emoji: {
-    fontSize: 32,
-    marginTop: 2,
+    fontSize: 30,
   },
   headerCopy: {
     flex: 1,
-    gap: 6,
+    gap: 5,
   },
   title: {
     color: tokens.text,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800',
   },
   description: {
     color: tokens.subtleText,
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 14,
+    lineHeight: 21,
   },
   metaRow: {
     flexDirection: 'row',
@@ -89,9 +115,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   metaBadge: {
-    backgroundColor: tokens.surfaceStrong,
+    backgroundColor: tokens.surfaceMuted,
     borderColor: tokens.border,
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
     flex: 1,
     minWidth: 120,
@@ -106,13 +132,31 @@ const styles = StyleSheet.create({
   },
   metaValue: {
     color: tokens.text,
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '800',
     marginTop: 4,
   },
-  playLabel: {
-    color: '#bd8797',
-    fontSize: 15,
+  footer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  footerCopy: {
+    color: '#b48593',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  openPill: {
+    alignItems: 'center',
+    borderRadius: 999,
+    flexDirection: 'row',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  openLabel: {
+    color: '#715a4b',
+    fontSize: 13,
     fontWeight: '800',
   },
 });
